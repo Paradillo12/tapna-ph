@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TapNa PH – Brew & Grind Coffee</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0d0d0d;
+    --surface:  #161616;
+    --card:     #1e1e1e;
+    --border:   #2a2a2a;
+    --accent:   #e8c77a;
+    --accent2:  #c9a84c;
+    --text:     #f0ece4;
+    --muted:    #888070;
+    --green:    #4ecb71;
+    --blue:     #5ba4f5;
+    --red:      #f47b7b;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,199,122,.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 90% 90%, rgba(232,199,122,.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 60px;
+  }
+
+  /* ── NFC PULSE HERO ── */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 52px;
+    padding-bottom: 36px;
+    text-align: center;
+    animation: fadeDown .7s ease both;
+  }
+
+  .nfc-ring-wrap {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin-bottom: 24px;
+  }
+
+  .nfc-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: pulse 2.4s ease-out infinite;
+    opacity: 0;
+  }
+  .nfc-ring:nth-child(2) { animation-delay: .8s; }
+  .nfc-ring:nth-child(3) { animation-delay: 1.6s; }
+
+  @keyframes pulse {
+    0%   { transform: scale(.6); opacity: .7; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
+
+  .nfc-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 68px;
+    height: 68px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 30px rgba(232,199,122,.18);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232,199,122,.1);
+    border: 1px solid rgba(232,199,122,.25);
+    color: var(--accent);
+    font-size: 11px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .badge::before { content: '●'; font-size: 7px; }
+
+  .shop-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 7vw, 36px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .shop-name span { color: var(--accent); }
+
+  .shop-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: .03em;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    max-width: 380px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 4px 0 28px;
+  }
+
+  /* ── GREETING ── */
+  .greet {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 300;
+    animation: fadeUp .6s .2s ease both;
+  }
+  .greet strong { color: var(--text); font-weight: 500; }
+
+  /* ── ACTION CARDS ── */
+  .cards {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeUp .6s .35s ease both;
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px 22px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .25s ease;
+    border-radius: inherit;
+  }
+
+  .card-menu::before   { background: radial-gradient(ellipse at left, rgba(232,199,122,.08) 0%, transparent 70%); }
+  .card-wifi::before   { background: radial-gradient(ellipse at left, rgba(91,164,245,.08) 0%, transparent 70%); }
+  .card-social::before { background: radial-gradient(ellipse at left, rgba(78,203,113,.08) 0%, transparent 70%); }
+
+  .card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+  .card:hover::before { opacity: 1; }
+  .card:hover.card-menu   { border-color: rgba(232,199,122,.4); }
+  .card:hover.card-wifi   { border-color: rgba(91,164,245,.4); }
+  .card:hover.card-social { border-color: rgba(78,203,113,.4); }
+
+  .card:active { transform: scale(.97); }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .card-menu   .card-icon { background: rgba(232,199,122,.12); }
+  .card-wifi   .card-icon { background: rgba(91,164,245,.12); }
+  .card-social .card-icon { background: rgba(78,203,113,.12); }
+
+  .card-text { flex: 1; }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    color: var(--text);
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .card-arrow {
+    font-size: 18px;
+    color: var(--border);
+    transition: color .2s, transform .2s;
+    flex-shrink: 0;
+  }
+  .card:hover .card-arrow { color: var(--muted); transform: translateX(3px); }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+    padding: 20px;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 24px 24px;
+    width: 100%;
+    max-width: 400px;
+    padding: 28px 24px 24px;
+    transform: translateY(30px);
+    transition: transform .35s cubic-bezier(.34,1.2,.64,1);
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+  }
+  .modal-close:hover { background: var(--border); }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .modal-head-icon {
+    width: 52px; height: 52px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .modal-head-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .modal-head-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* MENU MODAL */
+  .menu-section { margin-bottom: 18px; }
+  .menu-section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .menu-items { display: flex; flex-direction: column; gap: 8px; }
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .menu-item-left { display: flex; align-items: center; gap: 10px; }
+  .menu-item-emoji { font-size: 18px; }
+  .menu-item-name { font-size: 13px; font-weight: 500; }
+  .menu-item-note { font-size: 11px; color: var(--muted); }
+  .menu-item-price { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--accent); }
+
+  /* WIFI MODAL */
+  .wifi-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .wifi-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin: 8px 0 4px;
+  }
+  .wifi-pass-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .wifi-pass {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 18px;
+    font-family: monospace;
+    letter-spacing: .1em;
+  }
+  .wifi-connect-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .wifi-connect-btn:hover { opacity: .85; }
+  .wifi-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+  /* SOCIAL MODAL */
+  .social-links { display: flex; flex-direction: column; gap: 10px; }
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color .2s, transform .2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .social-link:hover { transform: translateX(4px); }
+  .social-link.fb:hover  { border-color: #4267B2; }
+  .social-link.ig:hover  { border-color: #C13584; }
+  .social-link.gr:hover  { border-color: #4285F4; }
+  .social-icon { font-size: 24px; width: 40px; text-align: center; }
+  .social-info-name { font-size: 14px; font-weight: 500; }
+  .social-info-sub  { font-size: 11px; color: var(--muted); }
+  .social-arrow { margin-left: auto; color: var(--muted); font-size: 14px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 36px;
+    text-align: center;
+    animation: fadeUp .6s .5s ease both;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-sub { font-size: 11px; color: #555; margin-top: 4px; }
+
+  /* ── TABLE TAG ── */
+  .table-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: #0d0d0d;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 100px;
+    z-index: 200;
+    transition: transform .4s cubic-bezier(.34,1.4,.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="nfc-ring-wrap">
+      <div class="nfc-ring"></div>
+      <div class="nfc-ring"></div>
+      <div class="nfc-ring"></div>
+      <div class="nfc-icon">☕</div>
+    </div>
+    <div class="badge">NFC Connected</div>
+    <div class="shop-name">Brew <span>&</span> Grind</div>
+    <div class="shop-sub">Specialty Coffee · Quezon City</div>
+    <div class="table-tag">🪑 Table 04</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="greet">Welcome! <strong>What can we help you with?</strong></p>
+
+  <!-- ACTION CARDS -->
+  <div class="cards">
+
+    <div class="card card-menu" onclick="openModal('menu')">
+      <div class="card-icon">📋</div>
+      <div class="card-text">
+        <div class="card-title">View Our Menu</div>
+        <div class="card-desc">Browse drinks, food, and today's specials</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card card-wifi" onclick="openModal('wifi')">
+      <div class="card-icon">📶</div>
+      <div class="card-text">
+        <div class="card-title">Connect to WiFi</div>
+        <div class="card-desc">Free high-speed internet for customers</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+
+    <div class="card card-social" onclick="openModal('social')">
+      <div class="card-icon">❤️</div>
+      <div class="card-text">
+        <div class="card-title">Follow & Review Us</div>
+        <div class="card-desc">Share your experience or find us online</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">Tap<span>Na</span> PH</div>
+    <div class="footer-sub">Powered by NFC Smart Service</div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════
+     MODAL: MENU
+════════════════════════════ -->
+<div class="modal-overlay" id="modal-menu">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('menu')">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon" style="background:rgba(232,199,122,.12)">📋</div>
+      <div>
+        <div class="modal-head-title">Our Menu</div>
+        <div class="modal-head-sub">Today's selections • Updated daily</div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">☕ Hot Drinks</div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">☕</div>
+            <div><div class="menu-item-name">Brewed Coffee</div><div class="menu-item-note">Single origin, light roast</div></div>
+          </div>
+          <div class="menu-item-price">₱90</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🥛</div>
+            <div><div class="menu-item-name">Café Latte</div><div class="menu-item-note">Oat milk available</div></div>
+          </div>
+          <div class="menu-item-price">₱130</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🍫</div>
+            <div><div class="menu-item-name">Mocha</div><div class="menu-item-note">Dark chocolate blend</div></div>
+          </div>
+          <div class="menu-item-price">₱145</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">🧊 Cold Drinks</div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🧊</div>
+            <div><div class="menu-item-name">Iced Americano</div><div class="menu-item-note">Double shot espresso</div></div>
+          </div>
+          <div class="menu-item-price">₱110</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🍵</div>
+            <div><div class="menu-item-name">Matcha Latte</div><div class="menu-item-note">Japanese ceremonial grade</div></div>
+          </div>
+          <div class="menu-item-price">₱155</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">🥐 Food</div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🥐</div>
+            <div><div class="menu-item-name">Butter Croissant</div><div class="menu-item-note">Freshly baked, limited</div></div>
+          </div>
+          <div class="menu-item-price">₱85</div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-left">
+            <div class="menu-item-emoji">🍰</div>
+            <div><div class="menu-item-name">Cheesecake Slice</div><div class="menu-item-note">New York style</div></div>
+          </div>
+          <div class="menu-item-price">₱120</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     MODAL: WIFI
+════════════════════════════ -->
+<div class="modal-overlay" id="modal-wifi">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('wifi')">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon" style="background:rgba(91,164,245,.12)">📶</div>
+      <div>
+        <div class="modal-head-title">Free WiFi</div>
+        <div class="modal-head-sub">Connect instantly — no hassle</div>
+      </div>
+    </div>
+
+    <div class="wifi-box">
+      <div style="font-size:36px;margin-bottom:6px">📡</div>
+      <div class="wifi-name">BrewGrind_Guest</div>
+      <div class="wifi-pass-label">Password</div>
+      <div class="wifi-pass">
+        brewgrind2024
+        <span style="font-size:14px;cursor:pointer;color:var(--muted)" onclick="copyWifi()" title="Copy">📋</span>
+      </div>
+    </div>
+
+    <button class="wifi-connect-btn" onclick="fakeConnect()">📶 &nbsp;Connect Now</button>
+    <div class="wifi-note">Password copied automatically on some devices.<br>Speed: up to 50 Mbps · Free for all customers</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════
+     MODAL: SOCIAL
+════════════════════════════ -->
+<div class="modal-overlay" id="modal-social">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('social')">✕</button>
+    <div class="modal-head">
+      <div class="modal-head-icon" style="background:rgba(78,203,113,.12)">❤️</div>
+      <div>
+        <div class="modal-head-title">Follow & Review</div>
+        <div class="modal-head-sub">Your feedback means the world to us</div>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <a class="social-link fb" href="#" onclick="socialClick(event,'Facebook')">
+        <div class="social-icon">📘</div>
+        <div>
+          <div class="social-info-name">Facebook Page</div>
+          <div class="social-info-sub">@BrewAndGrindPH · 4.2K followers</div>
+        </div>
+        <div class="social-arrow">›</div>
+      </a>
+      <a class="social-link ig" href="#" onclick="socialClick(event,'Instagram')">
+        <div class="social-icon">📸</div>
+        <div>
+          <div class="social-info-name">Instagram</div>
+          <div class="social-info-sub">@brewandgrind.ph · 2.8K followers</div>
+        </div>
+        <div class="social-arrow">›</div>
+      </a>
+      <a class="social-link gr" href="#" onclick="socialClick(event,'Google Reviews')">
+        <div class="social-icon">⭐</div>
+        <div>
+          <div class="social-info-name">Google Reviews</div>
+          <div class="social-info-sub">4.8 stars · 312 reviews · Leave yours!</div>
+        </div>
+        <div class="social-arrow">›</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  function openModal(id) {
+    document.getElementById('modal-' + id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Close on backdrop click
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target === el) {
+        el.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function copyWifi() {
+    navigator.clipboard?.writeText('brewgrind2024').catch(()=>{});
+    showToast('✅ Password copied!');
+  }
+
+  function fakeConnect() {
+    closeModal('wifi');
+    setTimeout(() => showToast('📶 Connected to BrewGrind_Guest!'), 300);
+  }
+
+  function socialClick(e, name) {
+    e.preventDefault();
+    closeModal('social');
+    setTimeout(() => showToast('Opening ' + name + '...'), 300);
+  }
+</script>
+</body>
+</html>
